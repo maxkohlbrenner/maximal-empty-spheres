@@ -1,0 +1,3 @@
+[submodule "lie_geometry"]
+	path = lie_geometry
+	url = git@github.com:maxkohlbrenner/lie_geometry.git
