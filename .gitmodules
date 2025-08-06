@@ -1,3 +1,6 @@
 [submodule "lie_geometry"]
 	path = lie_geometry
 	url = git@github.com:maxkohlbrenner/lie_geometry.git
+[submodule "cgal/cgal"]
+	path = cgal/cgal
+	url = git@github.com:maxkohlbrenner/cgal.git
