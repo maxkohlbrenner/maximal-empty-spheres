@@ -7,3 +7,5 @@ This repository contains two versions of the reconstruction:
 - a demo cpp script that uses the CGAL implementation (currently experimental).
 
 For instructions on how to build the cpp version see the Readme in the cgal/ folder.
+
+An example for the application of both versions can be found in the `3D Reconstruction.ipynb` notebook.
