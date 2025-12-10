@@ -18,7 +18,7 @@ typedef std::pair<Point, Vector> Point_with_normal;
 int main(int argc, char** argv) {
 
     bool filter_contact_spheres_with_bbox = true;
-    int debug_level = 0;
+    int debug_level = 1;
 
     const std::string filename = (argc > 1) ? argv[1] : CGAL::data_file_path("data/3D/spheres.csv");;
     std::ifstream in(filename);
