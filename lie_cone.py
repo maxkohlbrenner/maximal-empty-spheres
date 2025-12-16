@@ -11,6 +11,9 @@ class LieConeSDFReconstruction:
 
     def __init__(self, G, N_extra=None, filter_type=0, n_check_planes=10, cut_bbx_factor=-1., timeit=False, verbose=True,filter_results=False,psr_screening_weight=1.):
 
+        if verbose:
+            print(" \n### LieCone SDF Reconstruction ### \n")
+
         self.timings = []
         if filter_type == 3:
             # combine pos+neg points
@@ -24,6 +27,7 @@ class LieConeSDFReconstruction:
             print("Run cone construction(s)")
         self.lcs   = [LieCone(G, N_extra, ft,
         n_check_planes=n_check_planes,
+        verbose=verbose,
         cut_bbx_factor=cbf,
         timeit=timeit,
         filter_results=filter_results) for ft,cbf in zip(filter_types,cut_bbx_factors)]
@@ -42,7 +46,7 @@ class LieConeSDFReconstruction:
 
 
         if verbose:
-            print("Run PSR")
+            print(f"Run PSR ({self.points.shape[0]} points)")
         self.V, self.F = point_cloud_to_mesh(self.points, self.normals, psr_screening_weight=psr_screening_weight)
 
 class LieCone:
@@ -95,6 +99,9 @@ class LieCone:
         SL = circle_to_lie(self.SE)
         NC = SL@self.H
 
+        if verbose:
+            print(f"--> NC.shape: {NC.shape}")
+
         if assertions:
             assert np.allclose(np.einsum("ni,ij,nj->n",SL,self.H,SL),0.), "All spheres must lie on the Lie quadric"
 
@@ -121,8 +128,16 @@ class LieCone:
         # Convex Hull Computation (MAIN)
         if verbose:
             print("... calculate convex hull")
-        #self.ch = ConvexHull(N)
+        #self.ch = ConvexHull(Np)
+
+        # Q0: ignore precision
+        #self.ch = ConvexHull(Np, qhull_options='Q0')
+
+        # used in the paper:
         self.ch = ConvexHull(Np, qhull_options='Q12')
+
+        if verbose:
+            print(f"--> ch.shape: V:({self.ch.vertices.shape}), F:({self.ch.simplices.shape})")
 
         if timeit:
             stp = time.time()
@@ -142,7 +157,9 @@ class LieCone:
             dots = np.einsum('njk,nk->nj', SC,Ks)
             print("    ->Kernels valid (per simplex): {}".format(np.allclose(dots, 1e-15)))
 
-        Kds_ = Ks@NC[:self.n_check_planes].T
+
+        ncp_ = np.min([NC.shape[0],self.n_check_planes])
+        Kds_ = Ks@NC[np.random.choice(NC.shape[0],size=(ncp_),replace=False)].T
         inv = Kds_.max(axis=1) >= 1e-5
         Ks[inv] *= -1
         self.Ks = Ks
@@ -227,6 +244,9 @@ class LieCone:
         else:
             self.sol_Ts = self.Ts[self.sol_T_indices]
 
+        if verbose:
+            print(f"LC: sol.shape {self.sol.shape}")
+
         #T_centers = (SE[:,:-1][Ts]).mean(axis=1)
         #sol_T_centers = T_centers[sol_T_indices]
 
@@ -281,6 +301,10 @@ class LieCone:
     def get_psr_oriented_points(self):
 
         #self.ami = self.get_maximal_adjacent_spheres()
+
+        print(f"Contact indices: ({self.ami.shape})")
+        print(f"[{', '.join(self.ami.T.astype('str'))}]")
+        #print(np.array2string(self.ami.T, separator=',', max_line_width=sys.maxsize))
 
         ami_valid = self.ami >= 0
 
