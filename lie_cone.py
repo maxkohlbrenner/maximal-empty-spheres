@@ -302,8 +302,8 @@ class LieCone:
 
         #self.ami = self.get_maximal_adjacent_spheres()
 
-        print(f"Contact indices: ({self.ami.shape})")
-        print(f"[{', '.join(self.ami.T.astype('str'))}]")
+        #print(f"Contact indices: ({self.ami.shape})")
+        #print(f"[{', '.join(self.ami.T.astype('str'))}]")
         #print(np.array2string(self.ami.T, separator=',', max_line_width=sys.maxsize))
 
         ami_valid = self.ami >= 0
